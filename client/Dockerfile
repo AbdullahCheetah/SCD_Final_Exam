@@ -4,8 +4,10 @@ FROM node:14-alpine
 # Set working directory
 WORKDIR /21i_1230_frontend
 
+# Copy package.json and package-lock.json
+COPY package*.json ./
+
 # Install dependencies
-COPY package.json package-lock.json ./
 RUN npm install
 
 # Copy project files
