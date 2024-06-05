@@ -1,116 +1,85 @@
 pipeline {
     agent any
 
+    tools {
+        nodejs 'jenkinsNode'
+    }
+
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker-hub') // Replace with your Jenkins credentials ID for Docker Hub
-        DOCKERHUB_ACCOUNT = 'i211230' // Replace with your Docker Hub username
-        REPO_NAME = 'SCD_Final_Exam' // Replace with your repository name
+        DOCKER_HUB_CREDENTIALS = credentials('docker-hub') // Jenkins credentials for Docker Hub
         DOCKER_REGISTRY_URL = 'docker.io' // Docker registry URL
         DOCKER_IMAGE_TAG = 'latest' // Tag for Docker images
     }
 
     stages {
-        stage('Checkout') {
+        stage('i211198_Checkout') {
             steps {
-                git 'https://github.com/AbdullahCheetah/SCD_Final_Exam.git' 
+                git 'https://github.com/NUCESFAST/scd-final-lab-exam-MasoodGhauri'
             }
         }
-        stage('Install Dependencies') {
-            parallel {
-                stage('Auth Service') {
-                    steps {
-                        dir('Auth') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Classrooms Service') {
-                    steps {
-                        dir('Classrooms') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Client Frontend') {
-                    steps {
-                        dir('client') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Event Bus Service') {
-                    steps {
-                        dir('event-bus') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-                stage('Post Service') {
-                    steps {
-                        dir('Post') {
-                            sh 'npm install'
-                        }
-                    }
-                }
-            }
-        }
-        stage('Build Docker Images') {
-            parallel {
-                stage('Build Auth Image') {
-                    steps {
-                        script {
-                            dockerImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_auth", 'Auth')
-                        }
-                    }
-                }
-                stage('Build Classrooms Image') {
-                    steps {
-                        script {
-                            dockerImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_classrooms", 'Classrooms')
-                        }
-                    }
-                }
-                stage('Build Client Image') {
-                    steps {
-                        script {
-                            dockerImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_client", 'client')
-                        }
-                    }
-                }
-                stage('Build Event Bus Image') {
-                    steps {
-                        script {
-                            dockerImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_eventbus", 'event-bus')
-                        }
-                    }
-                }
-                stage('Build Post Image') {
-                    steps {
-                        script {
-                            dockerImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_post", 'Post')
-                        }
-                    }
-                }
-            }
-        }
-        stage('Push Docker Images') {
+        
+        stage('i211198_Build and Push Auth Service') {
             steps {
-                script {
-                    docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_CREDENTIALS') {
-                        def authImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_auth", 'Auth')
-                        authImage.push()
-                        
-                        def classroomsImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_classrooms", 'Classrooms')
-                        classroomsImage.push()
-
-                        def clientImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_client", 'client')
-                        clientImage.push()
-
-                        def eventBusImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_eventbus", 'event-bus')
-                        eventBusImage.push()
-
-                        def postImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_post", 'Post')
-                        postImage.push()
+                dir('Auth_i211198_backend') {
+                    sh 'npm install'
+                    sh "docker build -t masoodghauri/auth-service:${DOCKER_IMAGE_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        echo "Logging in to Docker Hub with username: $DOCKER_HUB_USERNAME"
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push masoodghauri/auth-service:${DOCKER_IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        stage('i211198_Build and Push Classroom Service') {
+            steps {
+                dir('Classrooms_i211198_backend') {
+                    sh 'npm install'
+                    sh "docker build -t masoodghauri/classroom-service:${DOCKER_IMAGE_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push masoodghauri/classroom-service:${DOCKER_IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        stage('i211198_Build and Push Event-Bus Service') {
+            steps {
+                dir('event-bus_i211198_backend') {
+                    sh 'npm install'
+                    sh "docker build -t masoodghauri/event-bus-service:${DOCKER_IMAGE_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push masoodghauri/event-bus-service:${DOCKER_IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        stage('i211198_Build and Push Post Service') {
+            steps {
+                dir('Post_i211198_backend') {
+                    sh 'npm install'
+                    sh "docker build -t masoodghauri/post-service:${DOCKER_IMAGE_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push masoodghauri/post-service:${DOCKER_IMAGE_TAG}"
+                    }
+                }
+            }
+        }
+        
+        stage('i211198_Build and Push Frontend Service') {
+            steps {
+                dir('i211198_frontend') {
+                    sh 'npm install'
+                    sh 'npm run build'
+                    sh "docker build -t masoodghauri/frontend-service:${DOCKER_IMAGE_TAG} ."
+                    withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
+                        sh "echo $DOCKER_HUB_PASSWORD | docker login -u $DOCKER_HUB_USERNAME --password-stdin"
+                        sh "docker push masoodghauri/frontend-service:${DOCKER_IMAGE_TAG}"
                     }
                 }
             }
