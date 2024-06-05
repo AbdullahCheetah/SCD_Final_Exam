@@ -12,12 +12,18 @@ pipeline {
     stages {
         stage('Checkout') {
             steps {
-                git 'https://github.com/AbdullahCheetah/SCD_Final_Exam.git' 
+                git 'https://github.com/AbdullahCheetah/SCD_Final_Exam.git'
             }
         }
         stage('Install Dependencies') {
             parallel {
                 stage('Auth Service') {
+                    agent {
+                        docker {
+                            image 'node:14-alpine'
+                            args '-v /var/jenkins_home:/var/jenkins_home' // Adjust volume if needed
+                        }
+                    }
                     steps {
                         dir('Auth') {
                             sh 'npm install'
@@ -25,6 +31,12 @@ pipeline {
                     }
                 }
                 stage('Classrooms Service') {
+                    agent {
+                        docker {
+                            image 'node:14-alpine'
+                            args '-v /var/jenkins_home:/var/jenkins_home' // Adjust volume if needed
+                        }
+                    }
                     steps {
                         dir('Classrooms') {
                             sh 'npm install'
@@ -32,6 +44,12 @@ pipeline {
                     }
                 }
                 stage('Client Frontend') {
+                    agent {
+                        docker {
+                            image 'node:14-alpine'
+                            args '-v /var/jenkins_home:/var/jenkins_home' // Adjust volume if needed
+                        }
+                    }
                     steps {
                         dir('client') {
                             sh 'npm install'
@@ -39,6 +57,12 @@ pipeline {
                     }
                 }
                 stage('Event Bus Service') {
+                    agent {
+                        docker {
+                            image 'node:14-alpine'
+                            args '-v /var/jenkins_home:/var/jenkins_home' // Adjust volume if needed
+                        }
+                    }
                     steps {
                         dir('event-bus') {
                             sh 'npm install'
@@ -46,6 +70,12 @@ pipeline {
                     }
                 }
                 stage('Post Service') {
+                    agent {
+                        docker {
+                            image 'node:14-alpine'
+                            args '-v /var/jenkins_home:/var/jenkins_home' // Adjust volume if needed
+                        }
+                    }
                     steps {
                         dir('Post') {
                             sh 'npm install'
@@ -97,19 +127,19 @@ pipeline {
             steps {
                 script {
                     docker.withRegistry('https://index.docker.io/v1/', 'DOCKERHUB_CREDENTIALS') {
-                        def authImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_auth", 'Auth')
+                        def authImage = docker.image("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_auth:${DOCKER_IMAGE_TAG}")
                         authImage.push()
                         
-                        def classroomsImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_classrooms", 'Classrooms')
+                        def classroomsImage = docker.image("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_classrooms:${DOCKER_IMAGE_TAG}")
                         classroomsImage.push()
 
-                        def clientImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_client", 'client')
+                        def clientImage = docker.image("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_client:${DOCKER_IMAGE_TAG}")
                         clientImage.push()
 
-                        def eventBusImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_eventbus", 'event-bus')
+                        def eventBusImage = docker.image("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_eventbus:${DOCKER_IMAGE_TAG}")
                         eventBusImage.push()
 
-                        def postImage = docker.build("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_post", 'Post')
+                        def postImage = docker.image("${DOCKERHUB_ACCOUNT}/${REPO_NAME}_post:${DOCKER_IMAGE_TAG}")
                         postImage.push()
                     }
                 }
