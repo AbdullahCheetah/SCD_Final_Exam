@@ -12,15 +12,15 @@ pipeline {
     }
 
     stages {
-        stage('i211198_Checkout') {
+        stage('i211230_Checkout') {
             steps {
                 git 'https://github.com/NUCESFAST/scd-final-lab-exam-MasoodGhauri'
             }
         }
         
-        stage('i211198_Build and Push Auth Service') {
+        stage('i211230_Build and Push Auth Service') {
             steps {
-                dir('Auth_i211198_backend') {
+                dir('Auth_i211230_backend') {
                     sh 'npm install'
                     sh "docker build -t masoodghauri/auth-service:${DOCKER_IMAGE_TAG} ."
                     withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -32,9 +32,9 @@ pipeline {
             }
         }
         
-        stage('i211198_Build and Push Classroom Service') {
+        stage('i211230_Build and Push Classroom Service') {
             steps {
-                dir('Classrooms_i211198_backend') {
+                dir('Classrooms_i211230_backend') {
                     sh 'npm install'
                     sh "docker build -t masoodghauri/classroom-service:${DOCKER_IMAGE_TAG} ."
                     withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -47,7 +47,7 @@ pipeline {
         
         stage('i211198_Build and Push Event-Bus Service') {
             steps {
-                dir('event-bus_i211198_backend') {
+                dir('event-bus_i211230_backend') {
                     sh 'npm install'
                     sh "docker build -t masoodghauri/event-bus-service:${DOCKER_IMAGE_TAG} ."
                     withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -58,9 +58,9 @@ pipeline {
             }
         }
         
-        stage('i211198_Build and Push Post Service') {
+        stage('i211230_Build and Push Post Service') {
             steps {
-                dir('Post_i211198_backend') {
+                dir('Post_i211230_backend') {
                     sh 'npm install'
                     sh "docker build -t masoodghauri/post-service:${DOCKER_IMAGE_TAG} ."
                     withCredentials([usernamePassword(credentialsId: 'dockerHub_credentials', usernameVariable: 'DOCKER_HUB_USERNAME', passwordVariable: 'DOCKER_HUB_PASSWORD')]) {
@@ -71,9 +71,9 @@ pipeline {
             }
         }
         
-        stage('i211198_Build and Push Frontend Service') {
+        stage('i211230_Build and Push Frontend Service') {
             steps {
-                dir('i211198_frontend') {
+                dir('i211230_frontend') {
                     sh 'npm install'
                     sh 'npm run build'
                     sh "docker build -t masoodghauri/frontend-service:${DOCKER_IMAGE_TAG} ."
